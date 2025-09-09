@@ -1,177 +1,89 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>NUSATASK — Final</title>
-<style>
-:root{
-  --bg:#071017; --panel:#0e151b; --muted:#98a2b3; --text:#eaf4ff;
-  --accent1:#34e89e; --accent2:#00d4ff;
-}
-*{box-sizing:border-box}
-html,body{height:100%}
-body{margin:0;font-family:Inter,system-ui,Roboto,Arial;background:var(--bg);color:var(--text)}
-.center{display:flex;align-items:center;justify-content:center}
-.loader{height:100vh;flex-direction:column;gap:12px;display:flex;align-items:center;justify-content:center}
-.nt-logo{font-weight:900;font-size:56px;background:linear-gradient(90deg,var(--accent2),var(--accent1));-webkit-background-clip:text;color:transparent}
-.loading-bar{width:360px;height:12px;border-radius:999px;background:rgba(255,255,255,.03);overflow:hidden}
-.loading-bar > i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent2),var(--accent1));transition:width 1.1s ease}
-.container{max-width:980px;margin:18px auto;padding:18px}
-.card{background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,.01));border-radius:14px;padding:16px;border:1px solid rgba(255,255,255,.03)}
-.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.saldo{font-weight:800;padding:8px 12px;border-radius:12px;background:linear-gradient(90deg, rgba(52,232,158,0.07), rgba(0,212,255,0.04));border:1px solid rgba(255,255,255,.04)}
-.small{font-size:13px;color:var(--muted)}
-.stack{display:flex;flex-direction:column;gap:12px}
-.input{width:100%;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,.04);background:#071018;color:var(--text)}
-.btn{padding:12px 14px;border-radius:12px;border:none;cursor:pointer;font-weight:800}
-.btn-primary{background:linear-gradient(90deg,var(--accent2),var(--accent1));color:#002225}
-.progress{height:12px;background:rgba(255,255,255,.03);border-radius:999px;overflow:hidden;margin-top:8px}
-.progress > span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent2),var(--accent1));transition:width .4s}
-.modal{position:fixed;inset:0;background:rgba(2,6,10,.6);display:flex;align-items:center;justify-content:center;padding:18px;z-index:60}
-.danger{background:linear-gradient(180deg, rgba(255,80,80,0.04), rgba(255,80,80,0.02));border-left:4px solid rgba(255,80,80,0.9);padding:12px;border-radius:10px}
-.disabled{opacity:.45;pointer-events:none;filter:grayscale(.2)}
-@media (max-width:680px){ .container{padding:12px;margin:12px} .nt-logo{font-size:36px} }
-</style>
-
-<!-- Firebase (compat libs) -->
-<script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-database-compat.js"></script>
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NUSA EARNING</title>
+  <style>
+    body {
+      margin: 0; font-family: 'Poppins', sans-serif;
+      background: #0d1117; color: #fff; text-align: center;
+    }
+    h1 { color: #00f5d4; margin: 20px 0; }
+    .card {
+      background: #161b22; border-radius: 15px;
+      padding: 20px; margin: 20px auto; width: 90%;
+      max-width: 400px; box-shadow: 0 0 20px rgba(0,0,0,0.4);
+    }
+    input {
+      width: 90%; padding: 12px; margin: 10px 0;
+      border-radius: 10px; border: none;
+    }
+    button {
+      padding: 12px 20px; border: none;
+      border-radius: 12px; background: linear-gradient(45deg, #00f5d4, #00bbf9);
+      color: #fff; font-weight: bold; cursor: pointer; transition: 0.3s;
+    }
+    button:disabled { background: #555; cursor: not-allowed; }
+    #splash {
+      position: fixed; top:0; left:0; right:0; bottom:0;
+      background: #0d1117; display: flex; align-items:center; justify-content:center;
+      flex-direction: column; z-index: 9999;
+    }
+    .loader {
+      width: 80%; height: 6px; background: #333;
+      margin-top: 20px; border-radius: 3px; overflow: hidden;
+    }
+    .loader div {
+      width: 0; height: 100%; background: #00f5d4;
+      animation: load 2s forwards;
+    }
+    @keyframes load { to { width: 100%; } }
+    .saldo { font-size: 20px; margin: 10px 0; font-weight: bold; }
+    .notif {
+      background: #ff4444; padding: 10px; border-radius: 10px; margin: 20px;
+    }
+  </style>
 </head>
 <body>
 
-<!-- LOADING -->
-<div id="loading" class="loader center">
-  <div class="nt-logo">NT</div>
-  <div class="loading-bar"><i id="loadingInner"></i></div>
-  <div class="small">Memuat NUSATASK…</div>
+<!-- SPLASH -->
+<div id="splash">
+  <h1>NT</h1>
+  <div class="loader"><div></div></div>
+  <p>Memuat NUSA EARNING...</p>
 </div>
 
 <!-- AUTH -->
-<main id="auth" class="container" style="display:none">
-  <div class="card" style="max-width:640px;margin:0 auto">
-    <div style="text-align:center">
-      <div class="nt-logo" style="font-size:40px">NUSATASK</div>
-      <div class="small">Premium • Elegant • Dark</div>
-    </div>
-    <div class="stack" style="margin-top:14px">
-      <label class="small">Email</label>
-      <input id="email" class="input" type="email" placeholder="nama@email.com" />
-      <label class="small">Kata Sandi (min 6)</label>
-      <input id="password" class="input" type="password" minlength="6" placeholder="••••••" />
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
-        <button id="btn-register" class="btn btn-primary">Daftar & Masuk</button>
-        <div class="small">Tidak ada tombol logout</div>
-      </div>
-      <div id="authMsg" class="small" style="color:#ff9a9a;display:none"></div>
-    </div>
-  </div>
-</main>
-
-<!-- WARNING modal -->
-<div id="modalWarning" class="modal" style="display:none">
-  <div class="card" style="max-width:760px;width:100%">
-    <h2 style="margin:0 0 6px">PERINGATAN</h2>
-    <div class="danger">
-      <strong>Segala bentuk hack, nuyul, manipulasi data akan di-BAN otomatis.</strong>
-      <p class="small">1 device = 1 akun. 1 IP per device per 24 jam. 2 HP dengan 1 IP → terdeteksi pelanggaran.</p>
-    </div>
-    <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:12px;align-items:center">
-      <div class="small">Continue dalam <strong id="warnCount">5</strong>s</div>
-      <button id="btnContinue" class="btn btn-primary" disabled>Continue</button>
-    </div>
-  </div>
+<div id="auth" class="card" style="display:none;">
+  <h1>NUSATASK</h1>
+  <input type="email" id="email" placeholder="Email">
+  <input type="password" id="password" placeholder="Kata Sandi (min 6)">
+  <button onclick="register()">Daftar & Masuk</button>
 </div>
 
-<!-- APP -->
-<section id="app" class="container" style="display:none">
-  <header class="topbar">
-    <div style="display:flex;align-items:center;gap:12px">
-      <div class="nt-logo" style="font-size:20px">NT</div>
-      <div class="badge">NUSATASK</div>
-    </div>
-    <div id="saldo" class="saldo">Saldo: 0</div>
-  </header>
-
-  <h1 style="margin:6px 0 10px;font-size:20px">Dashboard Earning</h1>
-  <p class="small">Tiap tombol cooldown 4 menit. Reset harian 06:00 WIB.</p>
-
-  <div class="stack">
-    <!-- btn1 Monetag -->
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div><h3 style="margin:0">MENGHASILKAN</h3><div class="small">Monetag — Rewarded</div></div>
-        <div id="cdBtn1" class="small">Siap</div>
-      </div>
-      <div style="margin-top:12px"><button id="btn1" class="btn btn-primary" style="width:100%">Tonton Iklan</button></div>
-      <div class="progress"><span id="prog1" style="width:0%"></span></div>
-      <div style="margin-top:8px" class="small">Limit harian: <strong id="limit1">20</strong>×</div>
-    </div>
-
-    <!-- btn2 Onclika -->
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div><h3 style="margin:0">XSTRA BONUS</h3><div class="small">Onclika — TMA Rewarded (Spot 6089688)</div></div>
-        <div id="cdBtn2" class="small">Siap</div>
-      </div>
-      <div style="margin-top:12px"><button id="btn2" class="btn btn-primary" style="width:100%">Tonton Video Rewarded</button></div>
-      <div class="progress"><span id="prog2" style="width:0%"></span></div>
-      <div style="margin-top:8px" class="small">Limit harian: <strong id="limit2">20</strong>×</div>
-    </div>
-
-    <!-- btn3 Super Bonus -->
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div><h3 style="margin:0">SUPER BONUS</h3><div class="small">Onclika (Inpage 6089711) + ClickAdila (1463186/1463187/1463188)</div></div>
-        <div id="cdBtn3" class="small">Siap</div>
-      </div>
-      <div style="margin-top:12px"><button id="btn3" class="btn btn-primary" style="width:100%">Masuk Halaman Bonus</button></div>
-      <div class="progress"><span id="prog3" style="width:0%"></span></div>
-      <div style="margin-top:8px" class="small">Limit harian: <strong id="limit3">15</strong>×</div>
-    </div>
+<!-- NOTIF -->
+<div id="notif" class="card" style="display:none;">
+  <div class="notif">
+    ⚠️ Dilarang melakukan kecurangan! Akun akan dibanned permanen.
   </div>
-</section>
+  <button onclick="goDashboard()">Saya Mengerti</button>
+</div>
 
-<!-- Page1 & Page2 for Super Bonus -->
-<section id="page1" class="container" style="display:none">
-  <header class="topbar"><div class="nt-logo" style="font-size:18px">NT</div><div class="badge">SUPER BONUS • HAL 1</div></header>
-  <div class="card">
-    <h3>Scroll ke bawah lalu Continue</h3>
-    <div class="card small" style="margin:10px 0">[Onclika TMA Inpage — Spot 6089711]</div>
-    <div id="azBox" style="height:46vh;overflow:auto;border-radius:10px;padding:12px;border:1px dashed rgba(255,255,255,.04);background:rgba(255,255,255,.01)"></div>
-    <div style="display:flex;justify-content:flex-end;margin-top:12px">
-      <button id="btnContinueP1" class="btn btn-primary" disabled>Continue (<span id="p1Count">5</span>s)</button>
-    </div>
-  </div>
-</section>
+<!-- DASHBOARD -->
+<div id="dashboard" style="display:none;">
+  <h1>NUSA EARNING</h1>
+  <div class="saldo">Saldo: <span id="saldo">0</span> 💰</div>
+  <button id="earnBtn" onclick="earn()">Hasilkan</button>
+  <p id="cooldown"></p>
+</div>
 
-<section id="page2" class="container" style="display:none">
-  <header class="topbar"><div class="nt-logo" style="font-size:18px">NT</div><div class="badge">SUPER BONUS • HAL 2</div></header>
-  <div class="stack">
-    <div class="card"><h4>Click Adila — Inpage 1 (1463186)</h4><div class="small">[inpage 1463186]</div></div>
-    <div class="card"><h4>Click Adila — Inpage 2 (1463187)</h4><div class="small">[inpage 1463187]</div></div>
-    <div class="card"><h4>Click Adila — Banner (1463188)</h4><div class="small">[banner 1463188]</div></div>
-    <div style="display:flex;justify-content:flex-end">
-      <button id="btnClaimP2" class="btn btn-primary" disabled>Terima Reward (<span id="p2Count">7</span>s)</button>
-    </div>
-  </div>
-</section>
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
 <script>
-/* ================= CONFIG ================= */
-const CONFIG = {
-  COOLDOWN_MS: 4*60*1000,
-  LIMITS: { btn1:20, btn2:20, btn3:15 },
-  REWARD: { btn1:100, btn2:120, btn3:150 },
-  SUPER_P1_WAIT:5,
-  SUPER_P2_CLAIM:7,
-  RESET_HOUR_LOCAL:6,
-  TZ_OFFSET_MIN:7*60
-};
-
-/* ============= Firebase init (your config) ============= */
 const firebaseConfig = {
   apiKey: "AIzaSyDdlvPMWThdEUk2D92Tg_mQSHbGO4LG2AE",
   authDomain: "nusa-7a52a.firebaseapp.com",
@@ -186,371 +98,133 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
-/* ============= Server time ============= */
-let serverOffset = 0;
-db.ref('/.info/serverTimeOffset').on('value', snap => { serverOffset = snap.val() || 0; });
-function nowServer(){ return Date.now() + (serverOffset || 0); }
-function jakartaNow(){ return new Date(nowServer() + CONFIG.TZ_OFFSET_MIN*60000); }
-function dayKey(){ const d = jakartaNow(); const h = d.getHours(); const base = new Date(d); if(h < CONFIG.RESET_HOUR_LOCAL) base.setDate(base.getDate()-1); return `${base.getFullYear()}-${String(base.getMonth()+1).padStart(2,'0')}-${String(base.getDate()).padStart(2,'0')}`; }
+let userId = null;
+let cooldownActive = false;
+let maxDaily = 20;
+let todayCount = 0;
 
-/* ============= Device & IP mapping ============= */
-let DEVICE_ID = localStorage.getItem('NUSATASK_DEVICE_ID');
-if(!DEVICE_ID){ DEVICE_ID = crypto.randomUUID(); localStorage.setItem('NUSATASK_DEVICE_ID', DEVICE_ID); }
-let PUBLIC_IP = '0.0.0.0';
-async function fetchIP(){ try{ const r = await fetch('https://api.ipify.org?format=json'); const j = await r.json(); PUBLIC_IP = j.ip || PUBLIC_IP; }catch(e){ } }
-fetchIP();
+// --- SPLASH ---
+window.onload = () => {
+  setTimeout(()=>{
+    document.getElementById("splash").style.display="none";
+    auth.onAuthStateChanged(user=>{
+      if(user){
+        userId=user.uid;
+        checkReset();
+        listenSaldo();
+        document.getElementById("notif").style.display="block";
+      }else{
+        document.getElementById("auth").style.display="block";
+      }
+    });
+  },2500);
+};
 
-/* ============= UI refs ============= */
-const el = id => document.getElementById(id);
-const loading = el('loading'), authPage = el('auth'), modalWarning = el('modalWarning'), appPage = el('app');
-const btnRegister = el('btn-register'), emailEl = el('email'), passEl = el('password'), authMsg = el('authMsg');
-const btnContinue = el('btnContinue'), warnCount = el('warnCount');
-const saldoEl = el('saldo');
-const btn1 = el('btn1'), prog1 = el('prog1'), cdBtn1 = el('cdBtn1');
-const btn2 = el('btn2'), prog2 = el('prog2'), cdBtn2 = el('cdBtn2');
-const btn3 = el('btn3'), prog3 = el('prog3'), cdBtn3 = el('cdBtn3');
-const page1 = el('page1'), page2 = el('page2'), azBox = el('azBox'), btnContinueP1 = el('btnContinueP1'), p1Count = el('p1Count');
-const btnClaimP2 = el('btnClaimP2'), p2Count = el('p2Count');
+// --- AUTH ---
+function register(){
+  let email=document.getElementById("email").value;
+  let pass=document.getElementById("password").value;
+  auth.createUserWithEmailAndPassword(email,pass)
+  .catch(e=>{
+    auth.signInWithEmailAndPassword(email,pass);
+  });
+}
 
-/* ============= boot animation ============= */
-document.getElementById('loadingInner').style.width = '0%';
-setTimeout(()=> document.getElementById('loadingInner').style.width = '72%', 50);
-setTimeout(()=> document.getElementById('loadingInner').style.width = '100%', 1100);
-setTimeout(()=> { loading.style.display='none'; authPage.style.display='block'; }, 1600);
+// --- NOTIF ke Dashboard ---
+function goDashboard(){
+  document.getElementById("notif").style.display="none";
+  document.getElementById("dashboard").style.display="block";
+}
 
-/* ============= Auth flow ============= */
-btnRegister.addEventListener('click', async () => {
-  authMsg.style.display = 'none';
-  const email = emailEl.value.trim(); const pass = passEl.value.trim();
-  if(!email || pass.length < 6){ authMsg.textContent='Email/password tidak valid'; authMsg.style.display='block'; return; }
-  try{
-    await fetchIP();
-    const now = nowServer();
-    const ipSnap = await db.ref(`ip_map/${PUBLIC_IP}`).get();
-    const ipInfo = ipSnap.val();
-    const twentyFour = 24*60*60*1000;
-    if(ipInfo && (now - (ipInfo.assignedAt||0) < twentyFour) && ipInfo.uid && ipInfo.uid !== 'pending'){
-      throw new Error('IP ini sudah dipakai device lain dalam 24 jam.');
-    }
-    const devSnap = await db.ref(`device_map/${DEVICE_ID}`).get();
-    const devInfo = devSnap.val();
-    if(devInfo && devInfo.uid && devInfo.uid !== 'pending'){
-      throw new Error('Device ini sudah terdaftar 1 akun.');
-    }
+// --- LISTEN SALDO ---
+function listenSaldo(){
+  db.ref("users/"+userId+"/saldo").on("value",snap=>{
+    let saldo=snap.val()||0;
+    document.getElementById("saldo").innerText=saldo;
+  });
+  db.ref("users/"+userId+"/todayCount").on("value",snap=>{
+    todayCount=snap.val()||0;
+  });
+}
 
-    let cred;
-    try{ cred = await auth.createUserWithEmailAndPassword(email, pass); }
-    catch(e){
-      if(e.code === 'auth/email-already-in-use'){ cred = await auth.signInWithEmailAndPassword(email, pass); }
-      else throw e;
-    }
-
-    const uid = cred.user.uid;
-    const updates = {};
-    updates[`ip_map/${PUBLIC_IP}`] = { uid, deviceId: DEVICE_ID, assignedAt: now };
-    updates[`device_map/${DEVICE_ID}`] = { uid, ip: PUBLIC_IP, assignedAt: now };
-    updates[`users/${uid}/profile`] = { email, createdAt: now, banned:false, deviceId: DEVICE_ID, ip: PUBLIC_IP };
-    await db.ref().update(updates);
-  } catch(err){
-    authMsg.textContent = err.message || 'Gagal registrasi'; authMsg.style.display='block';
+// --- EARN ---
+async function earn(){
+  if(cooldownActive) return;
+  if(todayCount>=maxDaily){
+    alert("Limit harian tercapai. Tunggu reset jam 6 pagi.");
+    return;
   }
-});
+  cooldownActive=true;
+  todayCount++;
+  db.ref("users/"+userId+"/todayCount").set(todayCount);
 
-/* onAuthStateChanged */
-auth.onAuthStateChanged(async user => {
-  if(user){
-    const banSnap = await db.ref(`users/${user.uid}/profile/banned`).get();
-    if(banSnap.exists() && banSnap.val() === true){ alert('Akun ter-BAN. Hubungi admin.'); return; }
-    authPage.style.display='none';
-    modalWarning.style.display='flex';
-    let sec = 5; warnCount.textContent = sec; btnContinue.disabled = true;
-    const t = setInterval(()=>{ sec--; warnCount.textContent = sec; if(sec<=0){ clearInterval(t); btnContinue.disabled=false; btnContinue.textContent='Continue'; } }, 1000);
-    btnContinue.onclick = ()=>{ modalWarning.style.display='none'; afterLogin(user.uid); };
-  } else {
-    authPage.style.display='block'; appPage.style.display='none';
-  }
-});
-
-/* afterLogin */
-async function afterLogin(uid){
-  appPage.style.display='block';
-  bindBalance(uid);
-  await bindDailyState(uid);
-  setInterval(()=> antiAbuseCheck(uid), 25000);
-}
-
-/* bindBalance */
-function bindBalance(uid){
-  db.ref(`users/${uid}/saldo`).on('value', snap => {
-    const v = snap.val() || 0;
-    saldoEl.textContent = `Saldo: ${v}`;
+  playMonetag().then(()=>{
+    // tambah saldo setelah iklan selesai
+    db.ref("users/"+userId+"/saldo").transaction(s=> (s||0)+100 );
+    startCooldown();
   });
 }
 
-/* antiAbuseCheck */
-async function antiAbuseCheck(uid){
-  try{
-    await fetchIP();
-    const now = nowServer();
-    await db.ref(`users/${uid}/profile`).update({ lastSeenAt: now, lastIP: PUBLIC_IP });
-    const ipSnap = await db.ref(`ip_map/${PUBLIC_IP}`).get();
-    const ipInfo = ipSnap.val();
-    if(ipInfo && ipInfo.uid && ipInfo.uid !== uid){
-      await db.ref(`users/${uid}/profile/banned`).set(true);
-      alert('Pelanggaran IP terdeteksi. Akun di-BAN.');
-      location.reload();
-    }
-  }catch(e){ console.warn('antiAbuseCheck', e); }
+// --- COOLDOWN ---
+function startCooldown(){
+  let sec=180;
+  const btn=document.getElementById("earnBtn");
+  btn.disabled=true;
+  let cd=document.getElementById("cooldown");
+  let interval=setInterval(()=>{
+    sec--;
+    cd.innerText="Cooldown: "+sec+"s";
+    if(sec<=0){ clearInterval(interval); btn.disabled=false; cd.innerText=""; cooldownActive=false; }
+  },1000);
 }
 
-/* daily counters & UI */
-function pathFor(uid, dateKey){ return `users/${uid}/days/${dateKey}`; }
-
-async function bindDailyState(uid){
-  const dKey = dayKey();
-  await db.ref(pathFor(uid,dKey)).transaction(cur => cur || { btn1:{count:0,lastAt:0}, btn2:{count:0,lastAt:0}, btn3:{count:0,lastAt:0} });
-
-  db.ref(`${pathFor(uid,dKey)}/btn1`).on('value', snap => {
-    const data = snap.val() || {count:0,lastAt:0}; const cnt = data.count || 0; const lastAt = data.lastAt || 0;
-    prog1.style.width = Math.min(100, Math.round((cnt/CONFIG.LIMITS.btn1)*100)) + '%';
-    const remain = Math.max(0, (lastAt + CONFIG.COOLDOWN_MS) - nowServer());
-    if(remain > 0){ btn1.classList.add('disabled'); cdBtn1.textContent = 'Cooldown ' + msToClock(remain); startLocalTick('btn1', lastAt); } else { btn1.classList.remove('disabled'); cdBtn1.textContent = 'Siap'; }
-  });
-
-  db.ref(`${pathFor(uid,dKey)}/btn2`).on('value', snap => {
-    const data = snap.val() || {count:0,lastAt:0}; const cnt = data.count || 0; const lastAt = data.lastAt || 0;
-    prog2.style.width = Math.min(100, Math.round((cnt/CONFIG.LIMITS.btn2)*100)) + '%';
-    const remain = Math.max(0, (lastAt + CONFIG.COOLDOWN_MS) - nowServer());
-    if(remain > 0){ btn2.classList.add('disabled'); cdBtn2.textContent = 'Cooldown ' + msToClock(remain); startLocalTick('btn2', lastAt); } else { btn2.classList.remove('disabled'); cdBtn2.textContent = 'Siap'; }
-  });
-
-  db.ref(`${pathFor(uid,dKey)}/btn3`).on('value', snap => {
-    const data = snap.val() || {count:0,lastAt:0}; const cnt = data.count || 0; const lastAt = data.lastAt || 0;
-    prog3.style.width = Math.min(100, Math.round((cnt/CONFIG.LIMITS.btn3)*100)) + '%';
-    const remain = Math.max(0, (lastAt + CONFIG.COOLDOWN_MS) - nowServer());
-    if(remain > 0){ btn3.classList.add('disabled'); cdBtn3.textContent = 'Cooldown ' + msToClock(remain); startLocalTick('btn3', lastAt); } else { btn3.classList.remove('disabled'); cdBtn3.textContent = 'Siap'; }
-  });
-
-  btn1.onclick = ()=> performBtn(uid,'btn1');
-  btn2.onclick = ()=> performBtn(uid,'btn2');
-  btn3.onclick = ()=> enterSuperBonus(uid);
+// --- RESET JAM 6 PAGI ---
+function checkReset(){
+  const now=new Date();
+  const reset=new Date();
+  reset.setHours(6,0,0,0);
+  if(now>reset) reset.setDate(reset.getDate()+1);
+  const ms=reset-now;
+  setTimeout(()=>{
+    todayCount=0;
+    db.ref("users/"+userId+"/todayCount").set(0);
+    checkReset();
+  },ms);
 }
 
-/* helpers */
-function msToClock(ms){ const s=Math.ceil(ms/1000); const m=Math.floor(s/60); const r=s%60; return `${m}:${String(r).padStart(2,'0')}`; }
-function startLocalTick(btnKey, lastAt){
-  const el = (btnKey==='btn1')? cdBtn1 : (btnKey==='btn2')? cdBtn2 : cdBtn3;
-  const iv = setInterval(()=> {
-    const left = Math.max(0, (lastAt + CONFIG.COOLDOWN_MS) - nowServer());
-    if(left <= 0){ clearInterval(iv); if(el){ el.textContent = 'Siap'; if(btnKey==='btn1') btn1.classList.remove('disabled'); if(btnKey==='btn2') btn2.classList.remove('disabled'); if(btnKey==='btn3') btn3.classList.remove('disabled'); } }
-    else { if(el) el.textContent = 'Cooldown ' + msToClock(left); }
-  }, 800);
-}
-
-/* ============= Dynamic script loader ============= */
-function loadScriptOnce(src, attrs = {}){
-  return new Promise((resolve, reject) => {
-    // if already present by src, resolve
-    if(document.querySelector(`script[src="${src}"]`)){ return resolve(); }
-    const s = document.createElement('script');
-    s.src = src;
-    s.async = true;
+// --- Monetag ---
+function loadScriptOnce(src, attrs = {}) {
+  if(document.querySelector(`script[data-src-fingerprint="${src}"]`)) return Promise.resolve();
+  return new Promise((res,rej)=>{
+    const s=document.createElement("script");
+    s.src=src; s.async=true;
     for(const k in attrs) s.setAttribute(k, attrs[k]);
-    s.onload = ()=> resolve();
-    s.onerror = (e)=> reject(e);
+    s.setAttribute("data-src-fingerprint",src);
+    s.onload=()=>res(); s.onerror=e=>rej(e);
     document.body.appendChild(s);
   });
 }
-
-/* ============= Ad wrappers (load dynamically and call) ============= */
-
-/* Monetag (zone 9779635) - script: //libtl.com/sdk.js with data-zone etc.
-   The provider exposes show_9779635() per your sample.
-*/
+function simulateAd(sec=8,label="Iklan (simulasi)"){
+  return new Promise(r=>{
+    alert(label+" berjalan "+sec+"s (simulasi)");
+    setTimeout(()=>r(),sec*1000);
+  });
+}
 async function playMonetag(){
   try{
-    await loadScriptOnce('//libtl.com/sdk.js', {'data-zone':'9779635','data-sdk':'show_9779635'});
-    if(typeof window.show_9779635 === 'function'){
-      return window.show_9779635();
-    } else {
-      console.warn('Monetag function show_9779635 not found after load; fallback simulate.');
-      return simulateAd(9,'Simulasi Monetag');
+    await loadScriptOnce("//libtl.com/sdk.js",{"data-zone":"9779635","data-sdk":"show_9779635"});
+    if(typeof window.show_9779635==="function"){
+      const res=window.show_9779635();
+      if(res && typeof res.then==="function"){ await res; }
+      else{ await new Promise(r=>setTimeout(r,3000)); }
+    }else{
+      await simulateAd(9,"Simulasi Monetag");
     }
-  }catch(e){ console.warn('Failed to load Monetag script', e); return simulateAd(9,'Simulasi Monetag'); }
-}
-
-/* Onclika TMA Rewarded (spot 6089688) - script: https://js.onclckmn.com/static/onclicka.js
-   We try common function names; provider should expose a method. If not, fallback simulate.
-*/
-async function playOnclikaReward(spotId){
-  try{
-    await loadScriptOnce('https://js.onclckmn.com/static/onclicka.js', {'data-admpid':'369301'});
-    // try known global objects
-    if(window.onclicka && typeof window.onclicka.show === 'function') return window.onclicka.show({spotId});
-    if(window.TMA && typeof window.TMA.showRewarded === 'function') return window.TMA.showRewarded({spotId});
-    // some providers attach to window['onclicka']
-    if(window['onclicka'] && typeof window['onclicka'].showRewarded === 'function') return window['onclicka'].showRewarded({spotId});
-    console.warn('Onclika SDK functions not found - fallback simulate');
-    return simulateAd(10,'Simulasi Onclika');
-  }catch(e){ console.warn('Failed to load Onclika', e); return simulateAd(10,'Simulasi Onclika'); }
-}
-
-/* Onclika Inpage (6089711) when rendering page1 we can attempt to render inpage slot via known API or let script auto-render if provider does that.
-   We will load script on entering page1, but many inpage libs auto-render into specific container by data attributes — provider doc needed for exact method.
-*/
-async function renderOnclikaInpage(spotId){
-  try{
-    await loadScriptOnce('https://js.onclckmn.com/static/onclicka.js', {'data-admpid':'369301'});
-    // try a render method
-    if(window.onclicka && typeof window.onclicka.renderInpage === 'function'){ return window.onclicka.renderInpage(spotId, '#azBox'); }
-    if(window.TMA && typeof window.TMA.renderInpage === 'function'){ return window.TMA.renderInpage(spotId, '#azBox'); }
-    // fallback: no op (provider may render automatically if script included)
-    return Promise.resolve();
-  }catch(e){ console.warn('renderOnclikaInpage error', e); return Promise.resolve(); }
-}
-
-/* ClickAdila inpage/banner (spots 1463186/1463187/1463188) */
-async function renderClickAdila(spotId){
-  try{
-    await loadScriptOnce('https://js.wpadmngr.com/static/adManager.js', {'data-admpid':'369167'});
-    // try common API:
-    if(window.adManager && typeof window.adManager.render === 'function'){ return window.adManager.render({spotId}); }
-    if(window.wpadmngr && typeof window.wpadmngr.show === 'function'){ return window.wpadmngr.show({spotId}); }
-    console.warn('ClickAdila SDK functions not found - fallback simulate');
-    return Promise.resolve();
-  }catch(e){ console.warn('Failed to load ClickAdila', e); return Promise.resolve(); }
-}
-
-/* simulate ad watch when no SDK available */
-function simulateAd(sec=8,label='Iklan (simulasi)'){
-  return new Promise(res=>{
-    const overlay = document.createElement('div'); overlay.className='modal';
-    overlay.innerHTML = `<div class="card"><h3>${label}</h3><div class="small">Simulasi ${sec}s</div></div>`;
-    document.body.appendChild(overlay);
-    setTimeout(()=>{ document.body.removeChild(overlay); res(); }, sec*1000);
-  });
-}
-
-/* ============= perform action (atomic transaction) ============= */
-async function performBtn(uid, btnKey){
-  const dKey = dayKey();
-  const ref = db.ref(`${pathFor(uid,dKey)}/${btnKey}`);
-  let allowed=false, newCount=0;
-  await ref.transaction(cur => {
-    cur = cur || {count:0,lastAt:0};
-    const now = nowServer();
-    const can = (now - (cur.lastAt || 0) >= CONFIG.COOLDOWN_MS) && (cur.count < CONFIG.LIMITS[btnKey]);
-    if(can){ cur.count = (cur.count || 0) + 1; cur.lastAt = now; allowed = true; newCount = cur.count; }
-    return cur;
-  }, async (err, committed, snap) => {
-    if(err){ console.error('txn err', err); return; }
-    if(!committed || !allowed){ console.log('action not allowed'); return; }
-    try{
-      if(btnKey === 'btn1'){
-        await playMonetag();
-        await db.ref(`users/${uid}/saldo`).set(firebase.database.ServerValue.increment(CONFIG.REWARD.btn1 || 100));
-      } else if(btnKey === 'btn2'){
-        await playOnclikaReward('6089688');
-        await db.ref(`users/${uid}/saldo`).set(firebase.database.ServerValue.increment(CONFIG.REWARD.btn2 || 120));
-      }
-    }catch(e){
-      console.warn('ad/play error', e);
-      // rollback best-effort
-      const patch = {};
-      patch[`${pathFor(uid,dKey)}/${btnKey}/count`] = Math.max(0, newCount - 1);
-      await db.ref().update(patch);
-      alert('Gagal memutar iklan.');
-    }
-  });
-}
-
-/* ============= Super Bonus flow ============= */
-function enterSuperBonus(uid){
-  document.getElementById('app').style.display = 'none';
-  page1.style.display = 'block';
-  // build A..Z
-  if(!azBox.dataset.inited){
-    const frag = document.createDocumentFragment();
-    for(let i=0;i<26;i++){ const p=document.createElement('p'); p.textContent = `${String.fromCharCode(97+i)}`; p.style.margin='6px 0'; frag.appendChild(p); }
-    azBox.appendChild(frag); azBox.dataset.inited = '1';
+  }catch(e){
+    console.warn("Gagal muat Monetag",e);
+    await simulateAd(9,"Simulasi Monetag");
   }
-  // load Onclika inpage script but do not let it render globally — our renderOnclikaInpage tries to target #azBox
-  renderOnclikaInpage('6089711').catch(()=>{});
-  btnContinueP1.disabled = true;
-  let scrolledBottom = false;
-  azBox.scrollTop = 0;
-  p1Count.textContent = CONFIG.SUPER_P1_WAIT;
-  azBox.onscroll = () => {
-    if(azBox.scrollTop + azBox.clientHeight >= azBox.scrollHeight - 6 && !scrolledBottom){
-      scrolledBottom = true;
-      startCountdown(btnContinueP1, p1Count, CONFIG.SUPER_P1_WAIT, ()=> btnContinueP1.disabled = false);
-    }
-  };
-  btnContinueP1.onclick = ()=> {
-    page1.style.display = 'none';
-    page2.style.display = 'block';
-    // render ClickAdila inpages
-    renderClickAdila('1463186').catch(()=>{});
-    renderClickAdila('1463187').catch(()=>{});
-    // banner likely auto-placed by SDK if present
-    btnClaimP2.disabled = true; p2Count.textContent = CONFIG.SUPER_P2_CLAIM;
-    startCountdown(btnClaimP2, p2Count, CONFIG.SUPER_P2_CLAIM, ()=> btnClaimP2.disabled = false);
-  };
-
-  btnClaimP2.onclick = async ()=> {
-    // when claim clicked, atomically increment btn3 and award
-    const dKey = dayKey();
-    const ref = db.ref(`users/${uid}/days/${dKey}/btn3`);
-    let allowed=false, newCount=0;
-    await ref.transaction(cur => { cur = cur || {count:0,lastAt:0}; const now=nowServer(); const can = (now - (cur.lastAt || 0) >= CONFIG.COOLDOWN_MS) && (cur.count < CONFIG.LIMITS.btn3); if(can){ cur.count = (cur.count||0) + 1; cur.lastAt = now; allowed=true; newCount=cur.count; } return cur; }, async (err, committed, snap) => {
-      if(err || !committed || !allowed){ alert('Tidak bisa klaim (cooldown/limit)'); return; }
-      try{
-        // final reward
-        await db.ref(`users/${uid}/saldo`).set(firebase.database.ServerValue.increment(CONFIG.REWARD.btn3 || 150));
-        page2.style.display = 'none';
-        document.getElementById('app').style.display = 'block';
-      }catch(e){ console.warn(e); alert('Gagal proses klaim'); }
-    });
-  };
 }
-
-/* countdown helper */
-function startCountdown(btnEl, spanEl, seconds, onEnd){
-  let left = seconds; spanEl.textContent = left;
-  const t = setInterval(()=>{ left--; spanEl.textContent = left; if(left <= 0){ clearInterval(t); onEnd && onEnd(); } }, 1000);
-}
-
-/* dev check */
-if(!btn1) console.warn('btn1 missing or DOM not ready');
-
 </script>
-
-<!-- Firebase Security Rules suggestion (paste into Realtime DB -> Rules) -->
-<!--
-{
-  "rules": {
-    ".read": "auth != null",
-    ".write": "auth != null",
-    "users": {
-      "$uid": {
-        ".read": "$uid === auth.uid",
-        ".write": "$uid === auth.uid",
-        "saldo": { ".validate": "newData.isNumber()" },
-        "days": {
-          "$date": {
-            "btn1": { ".validate": "newData.hasChildren(['count','lastAt'])" },
-            "btn2": { ".validate": "newData.hasChildren(['count','lastAt'])" },
-            "btn3": { ".validate": "newData.hasChildren(['count','lastAt'])" }
-          }
-        },
-        "profile": { ".validate": "newData.hasChild('deviceId') && newData.hasChild('email')" }
-      }
-    },
-    "ip_map": { ".read": "auth != null", ".write": "auth != null" },
-    "device_map": { ".read": "auth != null", ".write": "auth != null" }
-  }
-}
--->
-
 </body>
 </html>
