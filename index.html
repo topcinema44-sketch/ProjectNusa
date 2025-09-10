@@ -1,89 +1,125 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NUSA EARNING</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>NUSATASK — NT (Final)</title>
+
+  <!-- Firebase compat SDKs (use compat to keep simple API) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+  <!-- Monetag Ad Script (you provided) -->
+  <script src='//libtl.com/sdk.js' data-zone='9779635' data-sdk='show_9779635'></script>
+
+  <!-- Nice font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+
   <style>
-    body {
-      margin: 0; font-family: 'Poppins', sans-serif;
-      background: #0d1117; color: #fff; text-align: center;
+    :root{
+      --bg:#06070a; --card:#0f1720; --muted:#9fb3c9;
+      --accent1:#6ee7b7; --accent2:#60a5fa;
     }
-    h1 { color: #00f5d4; margin: 20px 0; }
-    .card {
-      background: #161b22; border-radius: 15px;
-      padding: 20px; margin: 20px auto; width: 90%;
-      max-width: 400px; box-shadow: 0 0 20px rgba(0,0,0,0.4);
-    }
-    input {
-      width: 90%; padding: 12px; margin: 10px 0;
-      border-radius: 10px; border: none;
-    }
-    button {
-      padding: 12px 20px; border: none;
-      border-radius: 12px; background: linear-gradient(45deg, #00f5d4, #00bbf9);
-      color: #fff; font-weight: bold; cursor: pointer; transition: 0.3s;
-    }
-    button:disabled { background: #555; cursor: not-allowed; }
-    #splash {
-      position: fixed; top:0; left:0; right:0; bottom:0;
-      background: #0d1117; display: flex; align-items:center; justify-content:center;
-      flex-direction: column; z-index: 9999;
-    }
-    .loader {
-      width: 80%; height: 6px; background: #333;
-      margin-top: 20px; border-radius: 3px; overflow: hidden;
-    }
-    .loader div {
-      width: 0; height: 100%; background: #00f5d4;
-      animation: load 2s forwards;
-    }
-    @keyframes load { to { width: 100%; } }
-    .saldo { font-size: 20px; margin: 10px 0; font-weight: bold; }
-    .notif {
-      background: #ff4444; padding: 10px; border-radius: 10px; margin: 20px;
-    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:'Poppins',sans-serif;background:linear-gradient(180deg,#020305,#081019);color:#eaf6ff;min-height:100vh}
+    .center{display:flex;align-items:center;justify-content:center}
+    /* Loading / Logo */
+    #loading{height:100vh;flex-direction:column;gap:18px}
+    .logoCircle{width:84px;height:84px;border-radius:20px;background:linear-gradient(135deg,var(--accent1),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:900;color:#012; font-size:28px; box-shadow:0 12px 40px rgba(0,120,255,0.12)}
+    .brandTitle{font-size:28px;font-weight:800;letter-spacing:2px}
+    .loadingBar{width:320px;height:10px;background:rgba(255,255,255,0.04);border-radius:999px;overflow:hidden}
+    .loadingBar > .fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent1),var(--accent2));transition:width .8s cubic-bezier(.22,.9,.34,1)}
+    /* App */
+    .appWrap{max-width:920px;margin:36px auto;padding:22px}
+    .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+    .balanceBox{background:rgba(255,255,255,0.03);padding:10px 14px;border-radius:14px;font-weight:700;box-shadow:0 8px 24px rgba(2,6,12,0.6)}
+    .card{background:linear-gradient(180deg,rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:16px;padding:20px;box-shadow:0 12px 40px rgba(2,6,12,0.5)}
+    .muted{color:var(--muted);font-size:13px}
+    .warning{background:#3b0f10;color:#ffd6d6;padding:12px;border-radius:10px;margin:12px 0}
+    /* premium button */
+    .earnBtn{display:inline-block;padding:18px 36px;border-radius:999px;border:0;font-weight:800;font-size:18px;background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#032;cursor:pointer;box-shadow:0 10px 30px rgba(6,120,180,0.18);transition:transform .18s}
+    .earnBtn:active{transform:scale(.98)}
+    .earnBtn[disabled]{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+    .progress{height:14px;width:100%;background:rgba(255,255,255,0.04);border-radius:999px;margin-top:18px;overflow:hidden}
+    .progress > .bar{height:100%;width:0%;background:linear-gradient(90deg,var(--accent1),var(--accent2));transition:width .35s ease}
+    .small{font-size:13px;color:var(--muted)}
+    /* form */
+    .authCard{max-width:420px;margin:32px auto;padding:26px;border-radius:14px;background:rgba(255,255,255,0.02)}
+    input{width:100%;padding:12px;border-radius:10px;border:0;margin:8px 0;background:rgba(255,255,255,0.02);color:#eaf6ff;font-size:15px}
+    .pillBtn{padding:10px 14px;border-radius:999px;border:0;background:rgba(255,255,255,0.03);color:#eaf6ff;cursor:pointer}
+    .footer{margin-top:18px;color:var(--muted);font-size:13px}
+    @media (max-width:760px){ .appWrap{padding:12px} .logoCircle{width:64px;height:64px} }
   </style>
 </head>
 <body>
 
-<!-- SPLASH -->
-<div id="splash">
-  <h1>NT</h1>
-  <div class="loader"><div></div></div>
-  <p>Memuat NUSA EARNING...</p>
-</div>
-
-<!-- AUTH -->
-<div id="auth" class="card" style="display:none;">
-  <h1>NUSATASK</h1>
-  <input type="email" id="email" placeholder="Email">
-  <input type="password" id="password" placeholder="Kata Sandi (min 6)">
-  <button onclick="register()">Daftar & Masuk</button>
-</div>
-
-<!-- NOTIF -->
-<div id="notif" class="card" style="display:none;">
-  <div class="notif">
-    ⚠️ Dilarang melakukan kecurangan! Akun akan dibanned permanen.
+  <!-- LOADING -->
+  <div id="loading" class="center" style="flex-direction:column">
+    <div class="logoCircle">NT</div>
+    <div class="brandTitle">NUSATASK</div>
+    <div class="loadingBar"><div id="fill" class="fill"></div></div>
   </div>
-  <button onclick="goDashboard()">Saya Mengerti</button>
-</div>
 
-<!-- DASHBOARD -->
-<div id="dashboard" style="display:none;">
-  <h1>NUSA EARNING</h1>
-  <div class="saldo">Saldo: <span id="saldo">0</span> 💰</div>
-  <button id="earnBtn" onclick="earn()">Hasilkan</button>
-  <p id="cooldown"></p>
-</div>
+  <!-- AUTH -->
+  <div id="auth" style="display:none">
+    <div class="authCard">
+      <div style="display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:8px">
+        <div class="logoCircle" style="width:56px;height:56px;font-size:20px">NT</div>
+        <div style="text-align:left">
+          <div style="font-weight:800">NUSATASK</div>
+          <div class="small">Masuk atau daftar untuk mulai mendapatkan</div>
+        </div>
+      </div>
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+      <input id="email" type="email" placeholder="Email" />
+      <input id="password" type="password" placeholder="Password (min 6)" />
+      <div style="display:flex;gap:8px;justify-content:center;margin-top:8px">
+        <button class="pillBtn" id="btn-login">Masuk</button>
+        <button class="pillBtn" id="btn-register">Daftar</button>
+      </div>
+      <div class="footer">Dengan mendaftar, Anda setuju pada Syarat & Ketentuan NUSATASK</div>
+    </div>
+  </div>
+
+  <!-- WARNING (5s) -->
+  <div id="warning" style="display:none" class="center">
+    <div class="authCard" style="max-width:520px">
+      <h3 style="margin:0">⚠️ Peringatan</h3>
+      <p class="small" style="margin:10px 0">Segala bentuk hack / nuyul / manipulasi data akan menyebabkan banned otomatis. Lanjutkan hanya jika setuju.</p>
+      <button class="earnBtn" id="continueBtn" disabled>Continue (5)</button>
+    </div>
+  </div>
+
+  <!-- APP -->
+  <div id="app" style="display:none">
+    <div class="appWrap">
+      <div class="topbar">
+        <div style="display:flex;gap:12px;align-items:center">
+          <div class="logoCircle" style="width:56px;height:56px;font-size:20px">NT</div>
+          <div style="text-align:left">
+            <div style="font-weight:800;font-size:18px">NUSATASK</div>
+            <div class="small">Premium earning — Monetag</div>
+          </div>
+        </div>
+        <div class="balanceBox" id="balanceBox">💰 <span id="balance">0</span></div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+          <div class="small muted">Tonton iklan untuk mendapatkan reward. Cooldown 3 menit | Max 20x per hari</div>
+          <button class="earnBtn" id="earnBtn">MENGHASILKAN</button>
+          <div class="progress" style="max-width:420px"><div class="bar" id="progBar"></div></div>
+          <div class="small" id="statusText">Sisa: 20 / hari</div>
+        </div>
+      </div>
+    </div>
+  </div>
 
 <script>
+/* ======================= CONFIG ======================= */
+/* Firebase config (you provided) */
 const firebaseConfig = {
   apiKey: "AIzaSyDdlvPMWThdEUk2D92Tg_mQSHbGO4LG2AE",
   authDomain: "nusa-7a52a.firebaseapp.com",
@@ -96,135 +132,312 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
-const db = firebase.database();
+const db = firebase.firestore();
+const rtdb = firebase.database();
 
-let userId = null;
-let cooldownActive = false;
-let maxDaily = 20;
-let todayCount = 0;
+/* App constants */
+const COOLDOWN_MS = 3 * 60 * 1000; // 3 menit
+const DAILY_MAX = 20;              // 20x per hari
+const REWARD = 10;                // reward per iklan
 
-// --- SPLASH ---
-window.onload = () => {
-  setTimeout(()=>{
-    document.getElementById("splash").style.display="none";
-    auth.onAuthStateChanged(user=>{
-      if(user){
-        userId=user.uid;
-        checkReset();
-        listenSaldo();
-        document.getElementById("notif").style.display="block";
-      }else{
-        document.getElementById("auth").style.display="block";
-      }
+/* Device ID & IP */
+const deviceId = btoa(navigator.userAgent + '|' + screen.width + 'x' + screen.height + '|' + Intl.DateTimeFormat().resolvedOptions().timeZone);
+let userIp = '';
+fetch('https://api.ipify.org?format=json').then(r=>r.json()).then(d=> userIp = d.ip ).catch(()=> userIp='');
+
+/* UI refs */
+const fillEl = document.getElementById('fill');
+const authEl = document.getElementById('auth');
+const loadingEl = document.getElementById('loading');
+const warningEl = document.getElementById('warning');
+const appEl = document.getElementById('app');
+const continueBtn = document.getElementById('continueBtn');
+const earnBtn = document.getElementById('earnBtn');
+const balanceSpan = document.getElementById('balance');
+const progBar = document.getElementById('progBar');
+const statusText = document.getElementById('statusText');
+
+/* small animation for loading */
+setTimeout(()=> fillEl.style.width='70%', 200);
+setTimeout(()=> fillEl.style.width='100%', 700);
+setTimeout(()=> {
+  loadingEl.style.display='none';
+  authEl.style.display='block';
+}, 1200);
+
+/* ======================= AUTH UI ======================= */
+document.getElementById('btn-register').onclick = async () => {
+  const email = document.getElementById('email').value.trim();
+  const pass = document.getElementById('password').value;
+  if(!email || pass.length < 6) return alert('Masukkan email & password minimal 6 karakter');
+  try{
+    const cred = await auth.createUserWithEmailAndPassword(email,pass);
+    // create user doc with createdAt serverTimestamp
+    await db.collection('users').doc(cred.user.uid).set({
+      balance: 0,
+      dailyCount: 0,
+      lastUsed: null,
+      deviceId: deviceId,
+      lastIP: userIp || null,
+      banned: false,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
-  },2500);
+    await updatePresence();
+    await checkBanAndAct(cred.user.uid);
+    showWarningOverlay();
+  }catch(e){ alert(e.message) }
 };
 
-// --- AUTH ---
-function register(){
-  let email=document.getElementById("email").value;
-  let pass=document.getElementById("password").value;
-  auth.createUserWithEmailAndPassword(email,pass)
-  .catch(e=>{
-    auth.signInWithEmailAndPassword(email,pass);
-  });
+document.getElementById('btn-login').onclick = async () => {
+  const email = document.getElementById('email').value.trim();
+  const pass = document.getElementById('password').value;
+  if(!email || !pass) return alert('Isi email & password');
+  try{
+    const cred = await auth.signInWithEmailAndPassword(email,pass);
+    await updatePresence();
+    await checkBanAndAct(cred.user.uid);
+    showWarningOverlay();
+  }catch(e){ alert(e.message) }
+};
+
+/* ======================= PRESENCE ======================= */
+async function updatePresence(){
+  try{
+    const user = auth.currentUser;
+    if(!user) return;
+    const uid = user.uid;
+    rtdb.ref('onlineUsers/' + uid).set({
+      lastSeen: Date.now(),
+      ip: userIp || null,
+      deviceId: deviceId
+    });
+  }catch(e){ console.warn('presence err', e) }
 }
 
-// --- NOTIF ke Dashboard ---
-function goDashboard(){
-  document.getElementById("notif").style.display="none";
-  document.getElementById("dashboard").style.display="block";
-}
+/* ======================= AUTO-BAN CHECK (client-side) =======================
+   Logic:
+   - Query collection "users" for any document with same deviceId OR same lastIP.
+   - If found another account (doc.id !== current uid) -> mark current uid as banned (banned: true)
+   - This is executed at register/login and before claim.
+   NOTE: This client-side auto-ban is immediate, but can be improved server-side with Cloud Functions.
+========================================================================== */
+async function checkBanAndAct(uid){
+  try{
+    if(!uid) return;
+    // query by deviceId
+    const usersRef = db.collection('users');
+    // gather matching docs for deviceId or lastIP
+    const q1 = await usersRef.where('deviceId','==',deviceId).get();
+    const q2 = userIp ? await usersRef.where('lastIP','==',userIp).get() : { empty:true, docs:[] };
 
-// --- LISTEN SALDO ---
-function listenSaldo(){
-  db.ref("users/"+userId+"/saldo").on("value",snap=>{
-    let saldo=snap.val()||0;
-    document.getElementById("saldo").innerText=saldo;
-  });
-  db.ref("users/"+userId+"/todayCount").on("value",snap=>{
-    todayCount=snap.val()||0;
-  });
-}
+    let otherFound = false;
+    const nowMs = Date.now();
 
-// --- EARN ---
-async function earn(){
-  if(cooldownActive) return;
-  if(todayCount>=maxDaily){
-    alert("Limit harian tercapai. Tunggu reset jam 6 pagi.");
-    return;
+    // check q1
+    q1.forEach(doc => {
+      if(doc.id !== uid) {
+        otherFound = true;
+      }
+    });
+    // check q2
+    if(q2 && !q2.empty){
+      q2.forEach(doc=>{
+        if(doc.id !== uid) otherFound = true;
+      });
+    }
+
+    // Additional heuristic: check if existing accounts created recently (optional)
+    // For now, if any other account uses same deviceId/IP -> ban this uid.
+    if(otherFound){
+      await usersRef.doc(uid).update({ banned: true });
+      alert('Akun Anda otomatis dibanned karena terdeteksi perangkat/IP yang sama dengan akun lain.');
+      // sign out & stop
+      await auth.signOut();
+      location.reload();
+      return true;
+    }
+    return false;
+  }catch(e){
+    console.warn('checkBan error', e);
+    return false;
   }
-  cooldownActive=true;
-  todayCount++;
-  db.ref("users/"+userId+"/todayCount").set(todayCount);
-
-  playMonetag().then(()=>{
-    // tambah saldo setelah iklan selesai
-    db.ref("users/"+userId+"/saldo").transaction(s=> (s||0)+100 );
-    startCooldown();
-  });
 }
 
-// --- COOLDOWN ---
-function startCooldown(){
-  let sec=180;
-  const btn=document.getElementById("earnBtn");
-  btn.disabled=true;
-  let cd=document.getElementById("cooldown");
-  let interval=setInterval(()=>{
-    sec--;
-    cd.innerText="Cooldown: "+sec+"s";
-    if(sec<=0){ clearInterval(interval); btn.disabled=false; cd.innerText=""; cooldownActive=false; }
+/* ======================= WARNING OVERLAY ======================= */
+function showWarningOverlay(){
+  authEl.style.display='none';
+  warningEl.style.display='flex';
+  let t = 5;
+  continueBtn.disabled = true;
+  continueBtn.innerText = `Continue (${t})`;
+  const iv = setInterval(()=>{
+    t--;
+    continueBtn.innerText = t>0 ? `Continue (${t})` : 'Continue';
+    if(t<=0){
+      clearInterval(iv);
+      continueBtn.disabled = false;
+    }
+  },1000);
+  continueBtn.onclick = ()=> {
+    warningEl.style.display='none';
+    showDashboard();
+  };
+}
+
+/* ======================= SHOW DASHBOARD ======================= */
+async function showDashboard(){
+  loadingEl.style.display='none';
+  authEl.style.display='none';
+  warningEl.style.display='none';
+  appEl.style.display='block';
+
+  const user = auth.currentUser;
+  if(!user) return alert('User not authenticated');
+
+  const uid = user.uid;
+  const userRef = db.collection('users').doc(uid);
+
+  // listen user doc for balance / banned / dailyCount / lastUsed
+  userRef.onSnapshot(snap => {
+    if(!snap.exists) return;
+    const data = snap.data();
+    if(data.banned){
+      alert('Akun Anda dibanned. Kontak support jika ingin banding.');
+      auth.signOut();
+      location.reload();
+      return;
+    }
+    balanceSpan.innerText = (data.balance || 0);
+    const dc = data.dailyCount || 0;
+    progBar.style.width = Math.min(100, (dc / DAILY_MAX) * 100) + '%';
+    statusText.innerText = `Sisa: ${Math.max(0, DAILY_MAX - dc)} / hari`;
+    // compute cooldown display
+    if(data.lastUsed){
+      const lastMs = data.lastUsed.seconds * 1000;
+      const rem = Math.max(0, COOLDOWN_MS - (Date.now() - lastMs));
+      if(rem > 0){
+        earnBtn.disabled = true;
+        earnBtn.innerText = `Cooldown ${msToMMSS(rem)}`;
+        // start ticking locally
+        startLocalCooldownTimer(rem);
+      } else {
+        earnBtn.disabled = false;
+        earnBtn.innerText = 'MENGHASILKAN';
+      }
+    } else {
+      earnBtn.disabled = false;
+      earnBtn.innerText = 'MENGHASILKAN';
+    }
+  });
+
+  // attach click
+  earnBtn.onclick = async () => {
+    // before claiming, re-run ban check (important)
+    const bannedNow = await checkBanAndAct(uid);
+    if(bannedNow) return;
+    await claimFlow(uid, userRef);
+  };
+}
+
+/* simple local cooldown ticker so button shows time */
+let localTimer = null;
+function startLocalCooldownTimer(ms){
+  if(localTimer) clearInterval(localTimer);
+  let rem = ms;
+  localTimer = setInterval(()=>{
+    rem -= 1000;
+    if(rem <= 0){
+      clearInterval(localTimer);
+      earnBtn.disabled = false;
+      earnBtn.innerText = 'MENGHASILKAN';
+      return;
+    }
+    earnBtn.innerText = `Cooldown ${msToMMSS(rem)}`;
   },1000);
 }
 
-// --- RESET JAM 6 PAGI ---
-function checkReset(){
-  const now=new Date();
-  const reset=new Date();
-  reset.setHours(6,0,0,0);
-  if(now>reset) reset.setDate(reset.getDate()+1);
-  const ms=reset-now;
-  setTimeout(()=>{
-    todayCount=0;
-    db.ref("users/"+userId+"/todayCount").set(0);
-    checkReset();
-  },ms);
+function msToMMSS(ms){
+  const s = Math.ceil(ms/1000);
+  const m = Math.floor(s/60);
+  const sec = s%60;
+  return `${m}:${sec.toString().padStart(2,'0')}`;
 }
 
-// --- Monetag ---
-function loadScriptOnce(src, attrs = {}) {
-  if(document.querySelector(`script[data-src-fingerprint="${src}"]`)) return Promise.resolve();
-  return new Promise((res,rej)=>{
-    const s=document.createElement("script");
-    s.src=src; s.async=true;
-    for(const k in attrs) s.setAttribute(k, attrs[k]);
-    s.setAttribute("data-src-fingerprint",src);
-    s.onload=()=>res(); s.onerror=e=>rej(e);
-    document.body.appendChild(s);
-  });
-}
-function simulateAd(sec=8,label="Iklan (simulasi)"){
-  return new Promise(r=>{
-    alert(label+" berjalan "+sec+"s (simulasi)");
-    setTimeout(()=>r(),sec*1000);
-  });
-}
-async function playMonetag(){
+/* ======================= CLAIM FLOW (transactional) ======================= */
+async function claimFlow(uid, userRef){
   try{
-    await loadScriptOnce("//libtl.com/sdk.js",{"data-zone":"9779635","data-sdk":"show_9779635"});
-    if(typeof window.show_9779635==="function"){
-      const res=window.show_9779635();
-      if(res && typeof res.then==="function"){ await res; }
-      else{ await new Promise(r=>setTimeout(r,3000)); }
-    }else{
-      await simulateAd(9,"Simulasi Monetag");
-    }
-  }catch(e){
-    console.warn("Gagal muat Monetag",e);
-    await simulateAd(9,"Simulasi Monetag");
+    // Transaction: validate cooldown & dailyCount using serverTimestamp
+    await db.runTransaction(async t => {
+      const doc = await t.get(userRef);
+      if(!doc.exists) throw new Error('User doc not found');
+
+      const data = doc.data();
+      if(data.banned) throw new Error('Akun dibanned');
+
+      const now = firebase.firestore.Timestamp.now();
+
+      // cooldown check
+      if(data.lastUsed){
+        const diffSec = now.seconds - data.lastUsed.seconds;
+        if(diffSec < (COOLDOWN_MS / 1000)) throw new Error('Cooldown aktif');
+      }
+
+      // daily limit
+      const dc = data.dailyCount || 0;
+      if(dc >= DAILY_MAX) throw new Error('Kuota harian habis');
+
+      // show ad and await (we want to ensure ad finished before writing)
+      // show_9779635 returns a Promise per the SDK snippet
+      await show_9779635();
+
+      // After ad finished, update fields atomically
+      const newBalance = (data.balance || 0) + REWARD;
+      t.update(userRef, {
+        balance: newBalance,
+        dailyCount: dc + 1,
+        lastUsed: now,
+        lastIP: userIp || null,
+        deviceId: deviceId
+      });
+    }); // end transaction
+
+    // success
+    alert(`✅ Reward +${REWARD} diberikan!`);
+  }catch(err){
+    // show friendly messages
+    const msg = (err && err.message) ? err.message : String(err);
+    if(msg.includes('Cooldown')) alert('⏳ Masih cooldown — coba nanti.');
+    else if(msg.includes('Kuota')) alert('🚫 Kuota harian habis.');
+    else alert('Gagal klaim: ' + msg);
   }
 }
+
+/* ======================= AUTH STATE & AUTO-PROTECT ======================= */
+auth.onAuthStateChanged(async user => {
+  if(!user){
+    // show auth
+    authEl.style.display = 'block';
+    appEl.style.display = 'none';
+    warningEl.style.display = 'none';
+    return;
+  }
+  // user signed in — update presence & run ban-check
+  await updatePresence();
+  await checkBanAndAct(user.uid).then(banned => {
+    if(banned) return;
+    // show warning overlay next
+    showWarningOverlay();
+  });
+});
+
+/* ======================= UTILITY: sign out helper ======================= */
+async function forceSignOut(msg){
+  alert(msg || 'Anda dikeluarkan.');
+  try{ await auth.signOut(); }catch(e){}
+  location.reload();
+}
+
+/* End of script */
 </script>
 </body>
 </html>
