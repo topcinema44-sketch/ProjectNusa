@@ -1,125 +1,120 @@
 <!doctype html>
 <html lang="id">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>NUSATASK — NT (Final)</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>NUSATASK — Premium Earning</title>
 
-  <!-- Firebase compat SDKs (use compat to keep simple API) -->
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
-  <!-- Monetag Ad Script (you provided) -->
+  <!-- Monetag SDK -->
   <script src='//libtl.com/sdk.js' data-zone='9779635' data-sdk='show_9779635'></script>
 
-  <!-- Nice font -->
+  <!-- Font -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
 
   <style>
-    :root{
-      --bg:#06070a; --card:#0f1720; --muted:#9fb3c9;
-      --accent1:#6ee7b7; --accent2:#60a5fa;
-    }
-    *{box-sizing:border-box}
-    body{margin:0;font-family:'Poppins',sans-serif;background:linear-gradient(180deg,#020305,#081019);color:#eaf6ff;min-height:100vh}
+    :root{--bg:#06070a;--card:#0f1720;--accent1:#6ee7b7;--accent2:#60a5fa}
+    body{margin:0;font-family:'Poppins',sans-serif;background:linear-gradient(180deg,#020305,#0b1220);color:#f1f8ff;min-height:100vh}
     .center{display:flex;align-items:center;justify-content:center}
-    /* Loading / Logo */
+
+    /* Loading */
     #loading{height:100vh;flex-direction:column;gap:18px}
-    .logoCircle{width:84px;height:84px;border-radius:20px;background:linear-gradient(135deg,var(--accent1),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:900;color:#012; font-size:28px; box-shadow:0 12px 40px rgba(0,120,255,0.12)}
-    .brandTitle{font-size:28px;font-weight:800;letter-spacing:2px}
-    .loadingBar{width:320px;height:10px;background:rgba(255,255,255,0.04);border-radius:999px;overflow:hidden}
-    .loadingBar > .fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent1),var(--accent2));transition:width .8s cubic-bezier(.22,.9,.34,1)}
+    .logo{width:80px;height:80px;border-radius:20px;background:linear-gradient(135deg,var(--accent1),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;color:#021;box-shadow:0 10px 40px rgba(0,200,255,.15)}
+    .loadingBar{width:260px;height:8px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden}
+    .fill{width:0;height:100%;background:linear-gradient(90deg,var(--accent1),var(--accent2));transition:width .8s}
+
+    /* Auth */
+    .authCard{max-width:360px;margin:60px auto;padding:24px;background:rgba(255,255,255,.03);border-radius:16px}
+    input{width:100%;padding:12px;margin:6px 0;border:0;border-radius:10px;background:rgba(255,255,255,.07);color:#fff}
+    .btn{padding:12px 18px;border-radius:999px;background:linear-gradient(90deg,var(--accent1),var(--accent2));border:0;font-weight:600;cursor:pointer;color:#012}
+
+    /* Warning */
+    .warnBox{max-width:420px;padding:20px;border-radius:14px;background:#141b29}
+
     /* App */
-    .appWrap{max-width:920px;margin:36px auto;padding:22px}
-    .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
-    .balanceBox{background:rgba(255,255,255,0.03);padding:10px 14px;border-radius:14px;font-weight:700;box-shadow:0 8px 24px rgba(2,6,12,0.6)}
-    .card{background:linear-gradient(180deg,rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:16px;padding:20px;box-shadow:0 12px 40px rgba(2,6,12,0.5)}
-    .muted{color:var(--muted);font-size:13px}
-    .warning{background:#3b0f10;color:#ffd6d6;padding:12px;border-radius:10px;margin:12px 0}
-    /* premium button */
-    .earnBtn{display:inline-block;padding:18px 36px;border-radius:999px;border:0;font-weight:800;font-size:18px;background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#032;cursor:pointer;box-shadow:0 10px 30px rgba(6,120,180,0.18);transition:transform .18s}
-    .earnBtn:active{transform:scale(.98)}
-    .earnBtn[disabled]{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
-    .progress{height:14px;width:100%;background:rgba(255,255,255,0.04);border-radius:999px;margin-top:18px;overflow:hidden}
-    .progress > .bar{height:100%;width:0%;background:linear-gradient(90deg,var(--accent1),var(--accent2));transition:width .35s ease}
-    .small{font-size:13px;color:var(--muted)}
-    /* form */
-    .authCard{max-width:420px;margin:32px auto;padding:26px;border-radius:14px;background:rgba(255,255,255,0.02)}
-    input{width:100%;padding:12px;border-radius:10px;border:0;margin:8px 0;background:rgba(255,255,255,0.02);color:#eaf6ff;font-size:15px}
-    .pillBtn{padding:10px 14px;border-radius:999px;border:0;background:rgba(255,255,255,0.03);color:#eaf6ff;cursor:pointer}
-    .footer{margin-top:18px;color:var(--muted);font-size:13px}
-    @media (max-width:760px){ .appWrap{padding:12px} .logoCircle{width:64px;height:64px} }
+    .appWrap{max-width:900px;margin:30px auto;padding:20px}
+    .topbar{display:flex;justify-content:space-between;align-items:center}
+    .balance{padding:10px 16px;background:rgba(255,255,255,.05);border-radius:12px;font-weight:700}
+    .card{background:rgba(255,255,255,.03);padding:24px;border-radius:16px;margin-top:20px;text-align:center}
+    .earnBtn{padding:16px 32px;border-radius:999px;background:linear-gradient(90deg,var(--accent1),var(--accent2));border:0;font-weight:700;color:#012;cursor:pointer}
+    .earnBtn[disabled]{opacity:.5;cursor:not-allowed}
+    .progress{height:12px;background:rgba(255,255,255,.07);border-radius:999px;margin-top:14px;overflow:hidden}
+    .bar{height:100%;width:0;background:linear-gradient(90deg,var(--accent1),var(--accent2));transition:width .3s}
+
+    /* Notif modal */
+    .notif{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:999}
+    .notifBox{background:#10141d;padding:22px;border-radius:16px;max-width:320px;text-align:center}
+    .notifTitle{font-weight:700;font-size:18px;margin-bottom:6px}
+    .notifMsg{font-size:14px;color:#bbb;margin-bottom:14px}
+    .notifBtn{background:linear-gradient(90deg,var(--accent1),var(--accent2));border:0;padding:10px 16px;border-radius:999px;font-weight:600;color:#012;cursor:pointer}
   </style>
 </head>
 <body>
 
-  <!-- LOADING -->
-  <div id="loading" class="center" style="flex-direction:column">
-    <div class="logoCircle">NT</div>
-    <div class="brandTitle">NUSATASK</div>
-    <div class="loadingBar"><div id="fill" class="fill"></div></div>
-  </div>
+<!-- Loading -->
+<div id="loading" class="center" style="flex-direction:column">
+  <div class="logo">NT</div>
+  <h2>NUSATASK</h2>
+  <div class="loadingBar"><div id="fill" class="fill"></div></div>
+</div>
 
-  <!-- AUTH -->
-  <div id="auth" style="display:none">
-    <div class="authCard">
-      <div style="display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:8px">
-        <div class="logoCircle" style="width:56px;height:56px;font-size:20px">NT</div>
-        <div style="text-align:left">
-          <div style="font-weight:800">NUSATASK</div>
-          <div class="small">Masuk atau daftar untuk mulai mendapatkan</div>
-        </div>
-      </div>
-
-      <input id="email" type="email" placeholder="Email" />
-      <input id="password" type="password" placeholder="Password (min 6)" />
-      <div style="display:flex;gap:8px;justify-content:center;margin-top:8px">
-        <button class="pillBtn" id="btn-login">Masuk</button>
-        <button class="pillBtn" id="btn-register">Daftar</button>
-      </div>
-      <div class="footer">Dengan mendaftar, Anda setuju pada Syarat & Ketentuan NUSATASK</div>
+<!-- Auth -->
+<div id="auth" style="display:none">
+  <div class="authCard">
+    <h2>Masuk / Daftar</h2>
+    <input id="email" type="email" placeholder="Email">
+    <input id="password" type="password" placeholder="Password (min 6)">
+    <div style="margin-top:12px;display:flex;gap:8px;justify-content:center">
+      <button class="btn" id="btn-login">Login</button>
+      <button class="btn" id="btn-register">Daftar</button>
     </div>
   </div>
+</div>
 
-  <!-- WARNING (5s) -->
-  <div id="warning" style="display:none" class="center">
-    <div class="authCard" style="max-width:520px">
-      <h3 style="margin:0">⚠️ Peringatan</h3>
-      <p class="small" style="margin:10px 0">Segala bentuk hack / nuyul / manipulasi data akan menyebabkan banned otomatis. Lanjutkan hanya jika setuju.</p>
-      <button class="earnBtn" id="continueBtn" disabled>Continue (5)</button>
+<!-- Warning -->
+<div id="warning" class="center" style="display:none">
+  <div class="warnBox">
+    <h3>⚠️ Peringatan</h3>
+    <p style="font-size:14px;color:#ccc">Segala bentuk hack / nuyul / manipulasi data akan mengakibatkan banned otomatis.</p>
+    <button id="continueBtn" class="btn" disabled>Continue (5)</button>
+  </div>
+</div>
+
+<!-- App -->
+<div id="app" style="display:none">
+  <div class="appWrap">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="logo" style="width:56px;height:56px;font-size:20px">NT</div>
+        <div><div style="font-weight:700">NUSATASK</div><div style="font-size:13px;color:#999">Premium earning</div></div>
+      </div>
+      <div class="balance">💰 <span id="balance">0</span></div>
+    </div>
+
+    <div class="card">
+      <p style="font-size:14px;color:#aaa">Tonton iklan Monetag. Cooldown 3 menit | Max 20x / hari</p>
+      <button class="earnBtn" id="earnBtn">MENGHASILKAN</button>
+      <div class="progress"><div id="progBar" class="bar"></div></div>
+      <div id="statusText" style="font-size:13px;color:#aaa;margin-top:6px">Sisa: 20 / hari</div>
     </div>
   </div>
+</div>
 
-  <!-- APP -->
-  <div id="app" style="display:none">
-    <div class="appWrap">
-      <div class="topbar">
-        <div style="display:flex;gap:12px;align-items:center">
-          <div class="logoCircle" style="width:56px;height:56px;font-size:20px">NT</div>
-          <div style="text-align:left">
-            <div style="font-weight:800;font-size:18px">NUSATASK</div>
-            <div class="small">Premium earning — Monetag</div>
-          </div>
-        </div>
-        <div class="balanceBox" id="balanceBox">💰 <span id="balance">0</span></div>
-      </div>
-
-      <div class="card">
-        <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
-          <div class="small muted">Tonton iklan untuk mendapatkan reward. Cooldown 3 menit | Max 20x per hari</div>
-          <button class="earnBtn" id="earnBtn">MENGHASILKAN</button>
-          <div class="progress" style="max-width:420px"><div class="bar" id="progBar"></div></div>
-          <div class="small" id="statusText">Sisa: 20 / hari</div>
-        </div>
-      </div>
-    </div>
+<!-- Notif -->
+<div id="notif" class="notif">
+  <div class="notifBox">
+    <div id="notifTitle" class="notifTitle">Info</div>
+    <div id="notifMsg" class="notifMsg">Pesan</div>
+    <button class="notifBtn" onclick="closeNotif()">OK</button>
   </div>
+</div>
 
 <script>
-/* ======================= CONFIG ======================= */
-/* Firebase config (you provided) */
+/* Firebase config */
 const firebaseConfig = {
   apiKey: "AIzaSyDdlvPMWThdEUk2D92Tg_mQSHbGO4LG2AE",
   authDomain: "nusa-7a52a.firebaseapp.com",
@@ -131,313 +126,92 @@ const firebaseConfig = {
   measurementId: "G-HBZN4WGKWX"
 };
 firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-const rtdb = firebase.database();
+const auth = firebase.auth(), db = firebase.firestore();
 
-/* App constants */
-const COOLDOWN_MS = 3 * 60 * 1000; // 3 menit
-const DAILY_MAX = 20;              // 20x per hari
-const REWARD = 10;                // reward per iklan
+/* Const */
+const COOLDOWN_MS = 180000, DAILY_MAX = 20, REWARD = 10;
+const deviceId = btoa(navigator.userAgent+screen.width+screen.height);
+let userIp = "";
+fetch("https://api.ipify.org?format=json").then(r=>r.json()).then(j=>userIp=j.ip);
 
-/* Device ID & IP */
-const deviceId = btoa(navigator.userAgent + '|' + screen.width + 'x' + screen.height + '|' + Intl.DateTimeFormat().resolvedOptions().timeZone);
-let userIp = '';
-fetch('https://api.ipify.org?format=json').then(r=>r.json()).then(d=> userIp = d.ip ).catch(()=> userIp='');
+/* Loading */
+setTimeout(()=>document.getElementById("fill").style.width="100%",400);
+setTimeout(()=>{document.getElementById("loading").style.display="none";document.getElementById("auth").style.display="block"},1200);
 
-/* UI refs */
-const fillEl = document.getElementById('fill');
-const authEl = document.getElementById('auth');
-const loadingEl = document.getElementById('loading');
-const warningEl = document.getElementById('warning');
-const appEl = document.getElementById('app');
-const continueBtn = document.getElementById('continueBtn');
-const earnBtn = document.getElementById('earnBtn');
-const balanceSpan = document.getElementById('balance');
-const progBar = document.getElementById('progBar');
-const statusText = document.getElementById('statusText');
+/* Notif */
+function showNotif(t,m){document.getElementById("notifTitle").innerText=t;document.getElementById("notifMsg").innerText=m;document.getElementById("notif").style.display="flex"}
+function closeNotif(){document.getElementById("notif").style.display="none"}
 
-/* small animation for loading */
-setTimeout(()=> fillEl.style.width='70%', 200);
-setTimeout(()=> fillEl.style.width='100%', 700);
-setTimeout(()=> {
-  loadingEl.style.display='none';
-  authEl.style.display='block';
-}, 1200);
-
-/* ======================= AUTH UI ======================= */
-document.getElementById('btn-register').onclick = async () => {
-  const email = document.getElementById('email').value.trim();
-  const pass = document.getElementById('password').value;
-  if(!email || pass.length < 6) return alert('Masukkan email & password minimal 6 karakter');
+/* Register */
+document.getElementById("btn-register").onclick=async()=>{
   try{
-    const cred = await auth.createUserWithEmailAndPassword(email,pass);
-    // create user doc with createdAt serverTimestamp
-    await db.collection('users').doc(cred.user.uid).set({
-      balance: 0,
-      dailyCount: 0,
-      lastUsed: null,
-      deviceId: deviceId,
-      lastIP: userIp || null,
-      banned: false,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    await updatePresence();
-    await checkBanAndAct(cred.user.uid);
-    showWarningOverlay();
-  }catch(e){ alert(e.message) }
+    const e=email.value,p=password.value;
+    if(!e||p.length<6) return showNotif("❌ Error","Email & password minimal 6 karakter");
+    const cred=await auth.createUserWithEmailAndPassword(e,p);
+    await db.collection("users").doc(cred.user.uid).set({balance:0,dailyCount:0,lastUsed:null,deviceId,ip:userIp,banned:false});
+    showWarning();
+  }catch(err){showNotif("❌ Error",err.message)}
+};
+/* Login */
+document.getElementById("btn-login").onclick=async()=>{
+  try{
+    const cred=await auth.signInWithEmailAndPassword(email.value,password.value);
+    const doc=await db.collection("users").doc(cred.user.uid).get();
+    if(!doc.exists) return showNotif("⚠️ Error","User belum register");
+    showWarning();
+  }catch(err){showNotif("❌ Error",err.message)}
 };
 
-document.getElementById('btn-login').onclick = async () => {
-  const email = document.getElementById('email').value.trim();
-  const pass = document.getElementById('password').value;
-  if(!email || !pass) return alert('Isi email & password');
-  try{
-    const cred = await auth.signInWithEmailAndPassword(email,pass);
-    await updatePresence();
-    await checkBanAndAct(cred.user.uid);
-    showWarningOverlay();
-  }catch(e){ alert(e.message) }
-};
-
-/* ======================= PRESENCE ======================= */
-async function updatePresence(){
-  try{
-    const user = auth.currentUser;
-    if(!user) return;
-    const uid = user.uid;
-    rtdb.ref('onlineUsers/' + uid).set({
-      lastSeen: Date.now(),
-      ip: userIp || null,
-      deviceId: deviceId
-    });
-  }catch(e){ console.warn('presence err', e) }
+/* Warning */
+function showWarning(){
+  auth.style.display="none";warning.style.display="flex";
+  let t=5;const btn=continueBtn;btn.disabled=true;btn.innerText=`Continue (${t})`;
+  let iv=setInterval(()=>{t--;btn.innerText=t>0?`Continue (${t})`:"Continue";if(t<=0){clearInterval(iv);btn.disabled=false}},1000);
+  btn.onclick=()=>{warning.style.display="none";showApp()};
 }
 
-/* ======================= AUTO-BAN CHECK (client-side) =======================
-   Logic:
-   - Query collection "users" for any document with same deviceId OR same lastIP.
-   - If found another account (doc.id !== current uid) -> mark current uid as banned (banned: true)
-   - This is executed at register/login and before claim.
-   NOTE: This client-side auto-ban is immediate, but can be improved server-side with Cloud Functions.
-========================================================================== */
-async function checkBanAndAct(uid){
-  try{
-    if(!uid) return;
-    // query by deviceId
-    const usersRef = db.collection('users');
-    // gather matching docs for deviceId or lastIP
-    const q1 = await usersRef.where('deviceId','==',deviceId).get();
-    const q2 = userIp ? await usersRef.where('lastIP','==',userIp).get() : { empty:true, docs:[] };
-
-    let otherFound = false;
-    const nowMs = Date.now();
-
-    // check q1
-    q1.forEach(doc => {
-      if(doc.id !== uid) {
-        otherFound = true;
-      }
-    });
-    // check q2
-    if(q2 && !q2.empty){
-      q2.forEach(doc=>{
-        if(doc.id !== uid) otherFound = true;
-      });
-    }
-
-    // Additional heuristic: check if existing accounts created recently (optional)
-    // For now, if any other account uses same deviceId/IP -> ban this uid.
-    if(otherFound){
-      await usersRef.doc(uid).update({ banned: true });
-      alert('Akun Anda otomatis dibanned karena terdeteksi perangkat/IP yang sama dengan akun lain.');
-      // sign out & stop
-      await auth.signOut();
-      location.reload();
-      return true;
-    }
-    return false;
-  }catch(e){
-    console.warn('checkBan error', e);
-    return false;
-  }
-}
-
-/* ======================= WARNING OVERLAY ======================= */
-function showWarningOverlay(){
-  authEl.style.display='none';
-  warningEl.style.display='flex';
-  let t = 5;
-  continueBtn.disabled = true;
-  continueBtn.innerText = `Continue (${t})`;
-  const iv = setInterval(()=>{
-    t--;
-    continueBtn.innerText = t>0 ? `Continue (${t})` : 'Continue';
-    if(t<=0){
-      clearInterval(iv);
-      continueBtn.disabled = false;
-    }
-  },1000);
-  continueBtn.onclick = ()=> {
-    warningEl.style.display='none';
-    showDashboard();
-  };
-}
-
-/* ======================= SHOW DASHBOARD ======================= */
-async function showDashboard(){
-  loadingEl.style.display='none';
-  authEl.style.display='none';
-  warningEl.style.display='none';
-  appEl.style.display='block';
-
-  const user = auth.currentUser;
-  if(!user) return alert('User not authenticated');
-
-  const uid = user.uid;
-  const userRef = db.collection('users').doc(uid);
-
-  // listen user doc for balance / banned / dailyCount / lastUsed
-  userRef.onSnapshot(snap => {
-    if(!snap.exists) return;
-    const data = snap.data();
-    if(data.banned){
-      alert('Akun Anda dibanned. Kontak support jika ingin banding.');
-      auth.signOut();
-      location.reload();
-      return;
-    }
-    balanceSpan.innerText = (data.balance || 0);
-    const dc = data.dailyCount || 0;
-    progBar.style.width = Math.min(100, (dc / DAILY_MAX) * 100) + '%';
-    statusText.innerText = `Sisa: ${Math.max(0, DAILY_MAX - dc)} / hari`;
-    // compute cooldown display
-    if(data.lastUsed){
-      const lastMs = data.lastUsed.seconds * 1000;
-      const rem = Math.max(0, COOLDOWN_MS - (Date.now() - lastMs));
-      if(rem > 0){
-        earnBtn.disabled = true;
-        earnBtn.innerText = `Cooldown ${msToMMSS(rem)}`;
-        // start ticking locally
-        startLocalCooldownTimer(rem);
-      } else {
-        earnBtn.disabled = false;
-        earnBtn.innerText = 'MENGHASILKAN';
-      }
-    } else {
-      earnBtn.disabled = false;
-      earnBtn.innerText = 'MENGHASILKAN';
-    }
+/* Dashboard */
+function showApp(){
+  app.style.display="block";
+  const uid=auth.currentUser.uid,ref=db.collection("users").doc(uid);
+  checkSecurity(ref);
+  ref.onSnapshot(s=>{
+    if(!s.exists)return;
+    const d=s.data();
+    if(d.banned){showNotif("🚫 Banned","Akun diblokir: "+(d.reason||""));auth.signOut();return;}
+    balance.innerText=d.balance||0;
+    progBar.style.width=((d.dailyCount||0)/DAILY_MAX*100)+"%";
+    statusText.innerText=`Sisa: ${Math.max(0,DAILY_MAX-(d.dailyCount||0))} / hari`;
+    if(d.lastUsed){const rem=COOLDOWN_MS-(Date.now()-d.lastUsed.toMillis());if(rem>0){earnBtn.disabled=true;earnBtn.innerText=`Cooldown ${Math.ceil(rem/1000)}s`;return;}}
+    earnBtn.disabled=false;earnBtn.innerText="MENGHASILKAN";
   });
-
-  // attach click
-  earnBtn.onclick = async () => {
-    // before claiming, re-run ban check (important)
-    const bannedNow = await checkBanAndAct(uid);
-    if(bannedNow) return;
-    await claimFlow(uid, userRef);
-  };
+  earnBtn.onclick=()=>claim(ref);
 }
 
-/* simple local cooldown ticker so button shows time */
-let localTimer = null;
-function startLocalCooldownTimer(ms){
-  if(localTimer) clearInterval(localTimer);
-  let rem = ms;
-  localTimer = setInterval(()=>{
-    rem -= 1000;
-    if(rem <= 0){
-      clearInterval(localTimer);
-      earnBtn.disabled = false;
-      earnBtn.innerText = 'MENGHASILKAN';
-      return;
-    }
-    earnBtn.innerText = `Cooldown ${msToMMSS(rem)}`;
-  },1000);
-}
-
-function msToMMSS(ms){
-  const s = Math.ceil(ms/1000);
-  const m = Math.floor(s/60);
-  const sec = s%60;
-  return `${m}:${sec.toString().padStart(2,'0')}`;
-}
-
-/* ======================= CLAIM FLOW (transactional) ======================= */
-async function claimFlow(uid, userRef){
+/* Claim Reward */
+async function claim(ref){
   try{
-    // Transaction: validate cooldown & dailyCount using serverTimestamp
-    await db.runTransaction(async t => {
-      const doc = await t.get(userRef);
-      if(!doc.exists) throw new Error('User doc not found');
-
-      const data = doc.data();
-      if(data.banned) throw new Error('Akun dibanned');
-
-      const now = firebase.firestore.Timestamp.now();
-
-      // cooldown check
-      if(data.lastUsed){
-        const diffSec = now.seconds - data.lastUsed.seconds;
-        if(diffSec < (COOLDOWN_MS / 1000)) throw new Error('Cooldown aktif');
-      }
-
-      // daily limit
-      const dc = data.dailyCount || 0;
-      if(dc >= DAILY_MAX) throw new Error('Kuota harian habis');
-
-      // show ad and await (we want to ensure ad finished before writing)
-      // show_9779635 returns a Promise per the SDK snippet
-      await show_9779635();
-
-      // After ad finished, update fields atomically
-      const newBalance = (data.balance || 0) + REWARD;
-      t.update(userRef, {
-        balance: newBalance,
-        dailyCount: dc + 1,
-        lastUsed: now,
-        lastIP: userIp || null,
-        deviceId: deviceId
-      });
-    }); // end transaction
-
-    // success
-    alert(`✅ Reward +${REWARD} diberikan!`);
-  }catch(err){
-    // show friendly messages
-    const msg = (err && err.message) ? err.message : String(err);
-    if(msg.includes('Cooldown')) alert('⏳ Masih cooldown — coba nanti.');
-    else if(msg.includes('Kuota')) alert('🚫 Kuota harian habis.');
-    else alert('Gagal klaim: ' + msg);
-  }
+    await db.runTransaction(async t=>{
+      const doc=await t.get(ref);if(!doc.exists)throw"User not found";
+      const d=doc.data();if(d.banned)throw"Akun dibanned";
+      const now=firebase.firestore.Timestamp.now();
+      if(d.lastUsed && now.seconds-d.lastUsed.seconds<COOLDOWN_MS/1000)throw"Cooldown aktif";
+      if((d.dailyCount||0)>=DAILY_MAX)throw"Kuota harian habis";
+      await show_9779635(); // Monetag ad
+      t.update(ref,{balance:(d.balance||0)+REWARD,dailyCount:(d.dailyCount||0)+1,lastUsed:now,deviceId,ip:userIp});
+    });
+    showNotif("✅ Berhasil","+10 poin ditambahkan");
+  }catch(err){showNotif("❌ Gagal",err)}
 }
 
-/* ======================= AUTH STATE & AUTO-PROTECT ======================= */
-auth.onAuthStateChanged(async user => {
-  if(!user){
-    // show auth
-    authEl.style.display = 'block';
-    appEl.style.display = 'none';
-    warningEl.style.display = 'none';
-    return;
-  }
-  // user signed in — update presence & run ban-check
-  await updatePresence();
-  await checkBanAndAct(user.uid).then(banned => {
-    if(banned) return;
-    // show warning overlay next
-    showWarningOverlay();
-  });
-});
-
-/* ======================= UTILITY: sign out helper ======================= */
-async function forceSignOut(msg){
-  alert(msg || 'Anda dikeluarkan.');
-  try{ await auth.signOut(); }catch(e){}
-  location.reload();
+/* Security */
+async function checkSecurity(ref){
+  const snap=await ref.get();if(!snap.exists)return;
+  const d=snap.data();let reason=null;
+  if(d.deviceId&&d.deviceId!==deviceId)reason="Multi-device terdeteksi";
+  if(d.ip&&d.ip!==userIp)reason="Multi-IP mencurigakan";
+  if(reason){await ref.update({banned:true,reason});showNotif("🚫 Banned",reason);auth.signOut();}
 }
-
-/* End of script */
 </script>
 </body>
 </html>
